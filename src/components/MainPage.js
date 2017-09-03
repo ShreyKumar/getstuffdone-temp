@@ -4,7 +4,10 @@ import './../css/main.css';
 class MainPage extends Component {
   render() {
     return (
-      <p>Homepage</p>
+      <h1>Register</h1>
+      <form action="">
+
+      </form>
     );
   }
 }
