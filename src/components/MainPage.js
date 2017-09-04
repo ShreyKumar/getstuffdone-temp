@@ -8,16 +8,6 @@ class MainPage extends Component {
 
     this.state = {value: ''};
 
-    this.handleLogin = this.handleLogin.bind(this);
-    this.handleRegister = this.handleRegister.bind(this);
-
-  }
-
-  handleLogin(event) {
-    event.preventDefault();
-  }
-  handleRegister(event) {
-    event.preventDefault();
   }
 
   handleValid(index){
@@ -44,6 +34,8 @@ class Field extends React.Component {
     //this.props.isValid(this);
     this.state = {
       msg: "",
+      daymsg: "",
+      yearmsg: "",
       valid: false
     };
   }
@@ -90,11 +82,11 @@ class Field extends React.Component {
     var inp = event.target.value;
     var isNum = /^\d+$/.test(inp);
 
-    console.log(this.props);
     if(inp > 31 || inp < 1 || !isNum){
-      this.setState({msg: "Sorry! Day must be between 1 and 31", valid: false});
+      this.setState({daymsg: "Sorry! Day must be between 1 and 31", dayvalid: false});
+      console.log(this.state);
     } else {
-      this.setState({msg: "", valid: true});
+      this.setState({daymsg: "", dayvalid: true});
       this.props.isValid({target: "day"});
     }
   }
@@ -105,9 +97,9 @@ class Field extends React.Component {
     var isNum = /^\d+$/.test(inp);
 
     if(inp < d.getFullYear()-100 || inp > d.getFullYear() || !isNum){
-      this.setState({msg: "Sorry! You can't be more than 100 years old.", valid: false});
+      this.setState({yearmsg: "Sorry! You can't be more than 100 years old.", yearvalid: false});
     } else {
-      this.setState({msg: "", valid: true});
+      this.setState({yearmsg: "", yearvalid: true});
       this.props.isValid({target: "year"});
     }
   }
@@ -127,7 +119,7 @@ class Field extends React.Component {
       //birthday
       const day = <div className="day-container">
         <input className="day" type="text" placeholder="Day" maxLength="2" onChange={this.handleDay} />
-        <p className="day-error"><i>{this.state.valid ? "" : this.state.msg}</i></p>
+        <p className="day-error"><i>{this.state.dayvalid ? "" : this.state.daymsg}</i></p>
         </div>;
       const month = <div className="month-container">
       <select className="month">
@@ -148,7 +140,7 @@ class Field extends React.Component {
       </div>;
       const year = <div className="year-container">
       <input className="year" type="text" placeholder="Year" maxLength="4" onChange={this.handleYear} />
-      <p className="year-error"><i>{this.state.valid ? "" : this.state.msg}</i></p>
+      <p className="year-error"><i>{this.state.yearvalid ? "" : this.state.yearmsg}</i></p>
       </div>;
 
       let birthday = [];
@@ -214,11 +206,11 @@ class Form extends React.Component {
     var input_year = event.target.elements.item(7).value;
 
     //check all fields
-    if(this.state.validFields.length == 7){
+    if(this.state.validFields.length >= 7){
       //check birthday month emptiness
       if(input_month > 0){
           //all good, send to the database
-          console.log("perfect!");
+
       } else {
         var currentMsg = this.state;
         currentMsg.msg = "Sorry, some of your information is invalid/empty"
