@@ -8,6 +8,8 @@ import {
 } from 'react-router-dom';
 import {MainPage as Home} from './MainPage';
 import {TestPage as Test} from './TestPage';
+import {EmailPage as Email} from './EmailPage';
+import {Dashboard as Dash} from './Dashboard';
 
 //firebase stuff
 import * as firebase from 'firebase';
@@ -38,7 +40,7 @@ class App extends Component {
           <header>
             <h1>Make Money. Get things done.</h1>
             <ul>
-              <li><Link to="/">Home</Link></li>
+              <li><Link to="/">Main</Link></li>
               <li><Link to="/test">Test</Link></li>
             </ul>
           </header>
@@ -46,6 +48,7 @@ class App extends Component {
             <Route exact path="/" component={Home}/>
             <Route path="/test" component={Test}/>
             <Route path="/email" component={Email}/>
+            <Route path="/dashboard" component={Dash} />
           </main>
           <footer>
             A <a href="http://shreykumar.com">Shreyansh Kumar</a> production

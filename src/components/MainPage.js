@@ -2,6 +2,10 @@ import React, { Component } from 'react';
 import './../css/main.css';
 import App from './App';
 
+import {Route, Switch, Redirect} from 'react-router-dom';
+import {EmailPage as Email} from './EmailPage';
+import {Dashboard as Dash} from './Dashboard';
+
 //firebase stuff
 import * as firebase from 'firebase';
 
@@ -10,7 +14,6 @@ class MainPage extends Component {
     super(props);
 
     this.state = {value: ''};
-
   }
 
   handleValid(index){
@@ -174,7 +177,7 @@ class Field extends React.Component {
 class Form extends React.Component {
   constructor(props){
     super(props);
-    this.state = {validFields: [], msg: ""};
+    this.state = {validFields: [], msg: "", user: []};
     this.addValidField = this.addValidField.bind(this);
     this.fieldExists = this.fieldExists.bind(this);
     this.handleRegister = this.handleRegister.bind(this);
@@ -207,7 +210,7 @@ class Form extends React.Component {
         this.setState({msg: "Sorry! " + error.message});
       }.bind(this)
     );
-    
+
 
   }
 
@@ -234,7 +237,13 @@ class Form extends React.Component {
             console.log(error);
           });
 
-          console.log(firebase.auth().currentUser);
+          firebase.auth().onAuthStateChanged(function(user){
+            if(user){
+              var currentUser = this.state.user;
+              currentUser.push(user);
+              this.setState({user: currentUser});
+            }
+          }.bind(this))
 
 
       } else {
@@ -261,39 +270,60 @@ class Form extends React.Component {
   }
 
   render(){
-    if(this.props.name == "register"){
-      return(
-        <div className={this.props.name + "-form"}>
-          <h1>Register</h1>
-          <h4>Basic information first. Then you can update your profile later</h4>
-          <p><i>You have to be 18+ to use this app</i></p>
-          <form onSubmit={this.handleRegister}>
-            <Field name="username" type="text" displayname="Username" example="Bob941" isValid={this.addValidField} />
-            <Field name="email" type="text" displayname="Email" example="bob@gmail.com" isValid={this.addValidField}/>
-            <Field name="password" type="password" displayname="Password" example="" isValid={this.addValidField}/>
-            <Field name="firstname" type="text" displayname="Firstname" example="Bob" isValid={this.addValidField}/>
-            <Field name="lastname" type="text" displayname="Lastname" example="Smith" isValid={this.addValidField}/>
-            <Field name="birthday" type="birthday" want={["day", "month", "year"]} isValid={this.addValidField} />
+    if(!this.state.user[0]){
+      if(this.props.name == "register"){
+        return(
+          <div className={this.props.name + "-form"}>
+            <h1>Register</h1>
+            <h4>Basic information first. Then you can update your profile later</h4>
+            <p><i>You have to be 18+ to use this app</i></p>
+            <form onSubmit={this.handleRegister}>
+              <Field name="username" type="text" displayname="Username" example="Bob941" isValid={this.addValidField} />
+              <Field name="email" type="text" displayname="Email" example="bob@gmail.com" isValid={this.addValidField}/>
+              <Field name="password" type="password" displayname="Password" example="" isValid={this.addValidField}/>
+              <Field name="firstname" type="text" displayname="Firstname" example="Bob" isValid={this.addValidField}/>
+              <Field name="lastname" type="text" displayname="Lastname" example="Smith" isValid={this.addValidField}/>
+              <Field name="birthday" type="birthday" want={["day", "month", "year"]} isValid={this.addValidField} />
 
-            <p className="register-error"><i>{this.state.msg}</i></p>
-            <input type="submit" value="Register" />
-          </form>
-        </div>
-      )
+              <p className="register-error"><i>{this.state.msg}</i></p>
+              <input type="submit" value="Register" />
+            </form>
+          </div>
+        )
+      } else {
+        //login
+        return(
+          <div className={this.props.name + "-form"}>
+            <h1>Login</h1>
+            <h4>Login with your Email, Facebook, Google+ or Twitter accounts</h4>
+            <form onSubmit={this.handleLogin}>
+              <Field name="email"type="text" displayname="Email" example="bob@gmail.com" isValid={this.addValidField} />
+              <Field name="password" type="password" displayname="Password" example="" isValid={this.addValidField}/>
+              <input type="submit" value="Login" />
+            </form>
+          </div>
+        )
+      }
+
     } else {
-      //login
-      return(
-        <div className={this.props.name + "-form"}>
-          <h1>Login</h1>
-          <h4>Login with your Email, Facebook, Google+ or Twitter accounts</h4>
-          <form onSubmit={this.handleLogin}>
-            <Field name="email"type="text" displayname="Email" example="bob@gmail.com" isValid={this.addValidField} />
-            <Field name="password" type="password" displayname="Password" example="" isValid={this.addValidField}/>
-            <input type="submit" value="Login" />
-          </form>
-        </div>
-      )
+      if(firebase.auth().currentUser.emailVerified){
+        return (
+          <Switch>
+            <Route path="/dashboard" component={Dash} />
+            <Redirect from="/email" to="/dashboard" push />
+          </Switch>
+        )
+      } else {
+        return (
+          <Switch>
+            <Route path="/email" component={Email} />
+            <Redirect from="/" to="/email" push />
+          </Switch>
+        )
+      }
+
     }
+
   }
 }
 
