@@ -45,6 +45,7 @@ class App extends Component {
           <main>
             <Route exact path="/" component={Home}/>
             <Route path="/test" component={Test}/>
+            <Route path="/email" component={Email}/>
           </main>
           <footer>
             A <a href="http://shreykumar.com">Shreyansh Kumar</a> production

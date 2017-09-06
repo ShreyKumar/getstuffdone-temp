@@ -180,7 +180,6 @@ class Form extends React.Component {
     this.handleRegister = this.handleRegister.bind(this);
     this.handleLogin = this.handleLogin.bind(this);
 
-    this.emailVerify = this.emailVerify.bind(this);
   }
 
   fieldExists(currentFields, field){
@@ -201,15 +200,17 @@ class Form extends React.Component {
     }
   }
 
-  emailVerify(user){
-    //send verification email
-    user.sendEmailVerification().then(function(){
-      console.log("email sent");
-    }).catch(function(error){
-      console.log("error happened!");
-      console.log(error);
-    })
+  createUser(email, password){
+    firebase.auth().createUserWithEmailAndPassword(email, password).catch(
+      function(error){
+        console.log(error);
+        this.setState({msg: "Sorry! " + error.message});
+      }.bind(this)
+    );
+    
+
   }
+
   handleRegister(event){
     event.preventDefault();
     var input_username = event.target.elements.item(0).value;
@@ -227,19 +228,14 @@ class Form extends React.Component {
       if(input_month > 0){
           //all good, send to the database
 
-          var user;
-          firebase.auth().createUserWithEmailAndPassword(input_email, input_pwd).catch(function(error){
-            var errorCode = error.code;
-            var errorMessage = error.message;
+          //signout all potential users
+          var temp = this;
+          firebase.auth().signOut().then(this.createUser(input_email, input_pwd), function(error){
+            console.log(error);
+          });
 
-            console.log(errorCode + ": " + errorMessage);
+          console.log(firebase.auth().currentUser);
 
-            user = firebase.auth().currentUser;
-
-            //this.emailVerify(user);
-          })
-          console.log("account created");
-          console.log(user);
 
       } else {
         var currentMsg = this.state;
