@@ -2,6 +2,9 @@ import React, { Component } from 'react';
 import './../css/main.css';
 import App from './App';
 
+//firebase stuff
+import * as firebase from 'firebase';
+
 class MainPage extends Component {
   constructor(props) {
     super(props);
@@ -38,6 +41,7 @@ class Field extends React.Component {
       yearmsg: "",
       valid: false
     };
+
   }
 
   handleChange(event){
@@ -45,7 +49,7 @@ class Field extends React.Component {
     var inp = event.target.value;
 
     if(this.props.name == "email"){
-      if(/^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[A-Za-z]+$/.test(inp)){
+      if(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(inp)){
         this.setState({msg: "", valid: true})
         this.props.isValid(this);
       } else {
@@ -175,6 +179,8 @@ class Form extends React.Component {
     this.fieldExists = this.fieldExists.bind(this);
     this.handleRegister = this.handleRegister.bind(this);
     this.handleLogin = this.handleLogin.bind(this);
+
+    this.emailVerify = this.emailVerify.bind(this);
   }
 
   fieldExists(currentFields, field){
@@ -194,6 +200,16 @@ class Form extends React.Component {
         this.setState(currentFields);
     }
   }
+
+  emailVerify(user){
+    //send verification email
+    user.sendEmailVerification().then(function(){
+      console.log("email sent");
+    }).catch(function(error){
+      console.log("error happened!");
+      console.log(error);
+    })
+  }
   handleRegister(event){
     event.preventDefault();
     var input_username = event.target.elements.item(0).value;
@@ -210,6 +226,20 @@ class Form extends React.Component {
       //check birthday month emptiness
       if(input_month > 0){
           //all good, send to the database
+
+          var user;
+          firebase.auth().createUserWithEmailAndPassword(input_email, input_pwd).catch(function(error){
+            var errorCode = error.code;
+            var errorMessage = error.message;
+
+            console.log(errorCode + ": " + errorMessage);
+
+            user = firebase.auth().currentUser;
+
+            //this.emailVerify(user);
+          })
+          console.log("account created");
+          console.log(user);
 
       } else {
         var currentMsg = this.state;
