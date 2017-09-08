@@ -29,10 +29,12 @@ var defaultDatabase = firebase.database();
 
 
 class App extends Component {
-
-  test(user){
-    return user.firstname + " " + user.lastname;
+  constructor(props){
+    super(props);
+    firebase.auth().onAuthStateChanged(function(user){
+    })
   }
+
   render() {
     return (
       <Router>

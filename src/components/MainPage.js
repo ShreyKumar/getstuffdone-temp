@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import './../css/main.css';
 import App from './App';
 
-import {Route, Switch, Redirect} from 'react-router-dom';
 import {EmailPage as Email} from './EmailPage';
 import {Dashboard as Dash} from './Dashboard';
 
@@ -239,38 +238,70 @@ class Form extends React.Component {
 
           firebase.auth().onAuthStateChanged(function(user){
             if(user){
+              //set users
+              firebase.database().ref("users/" + user.uid).set({
+                username: input_username,
+                firstname: input_firstname,
+                lastname: input_lastname,
+                day: input_day,
+                month: input_month,
+                year: input_year
+              })
+
               var currentUser = this.state.user;
               currentUser.push(user);
               this.setState({user: currentUser});
             }
-          }.bind(this))
+          }.bind(this));
+
 
 
       } else {
         var currentMsg = this.state;
-        currentMsg.msg = "Sorry, some of your information is invalid/empty"
+        currentMsg.msg = "Sorry, some of your information is invalid/empty";
         this.setState(currentMsg);
       }
 
     } else {
       //fix everything first!
       var currentMsg = this.state;
-      currentMsg.msg = "Sorry, some of your information is invalid/empty"
+      currentMsg.msg = "Sorry, some of your information is invalid/empty";
       this.setState(currentMsg);
     }
   }
   handleLogin(event){
     event.preventDefault();
-    if(this.state.length == 2){
-      //all logged in
-      console.log("logged in");
+    var input_email = event.target.elements.item(1).value;
+    var input_pwd = event.target.elements.item(2).value;
+
+    if(this.state.validFields.length >= 2){
+      firebase.auth().signInWithEmailAndPassword(input_email, input_pwd).catch(function(error){
+        if(error){
+          console.log(error);
+          var currentMsg = this.state;
+          currentMsg.msg = "Invalid email or password";
+          this.setState(currentMsg);
+        }
+      }.bind(this));
+
+      firebase.auth().onAuthStateChanged(function(user){
+        if(user){
+          var currentUser = this.state.user;
+          currentUser.push(user);
+          this.setState({user: currentUser});
+        }
+      }.bind(this));
+
     } else {
-      console.log("woops");
+      var currentMsg = this.state;
+      currentMsg.msg = "Invalid email or password";
+      this.setState(currentMsg);
     }
   }
 
   render(){
-    if(!this.state.user[0]){
+    console.log(firebase.auth().currentUser);
+    if(!firebase.auth().currentUser){
       if(this.props.name == "register"){
         return(
           <div className={this.props.name + "-form"}>
@@ -290,15 +321,17 @@ class Form extends React.Component {
             </form>
           </div>
         )
-      } else {
+      } else if (this.props.name == "login"){
         //login
         return(
           <div className={this.props.name + "-form"}>
             <h1>Login</h1>
             <h4>Login with your Email, Facebook, Google+ or Twitter accounts</h4>
             <form onSubmit={this.handleLogin}>
-              <Field name="email"type="text" displayname="Email" example="bob@gmail.com" isValid={this.addValidField} />
+              <Field name="email" type="text" displayname="Email" example="bob@gmail.com" isValid={this.addValidField} />
               <Field name="password" type="password" displayname="Password" example="" isValid={this.addValidField}/>
+
+              <p className="login-error"><i>{this.state.msg}</i></p>
               <input type="submit" value="Login" />
             </form>
           </div>
@@ -307,19 +340,9 @@ class Form extends React.Component {
 
     } else {
       if(firebase.auth().currentUser.emailVerified){
-        return (
-          <Switch>
-            <Route path="/dashboard" component={Dash} />
-            <Redirect from="/email" to="/dashboard" push />
-          </Switch>
-        )
+        window.location.href = "/dashboard";
       } else {
-        return (
-          <Switch>
-            <Route path="/email" component={Email} />
-            <Redirect from="/" to="/email" push />
-          </Switch>
-        )
+        window.location.href = "/email";
       }
 
     }
