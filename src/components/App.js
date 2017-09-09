@@ -32,7 +32,8 @@ class App extends Component {
   constructor(props){
     super(props);
     firebase.auth().onAuthStateChanged(function(user){
-      if(user && window.location.pathname != "/dashboard"){
+    console.log(user.emailVerified);
+      if(user && window.location.pathname != "/dashboard" && user.emailVerified){
         console.log("redirect");
         window.location.href = "/dashboard";
       }

@@ -246,7 +246,8 @@ class Form extends React.Component {
                 day: input_day,
                 month: input_month,
                 year: input_year
-              })
+              });
+              window.location.href = "/email";
             }
           }.bind(this));
 
