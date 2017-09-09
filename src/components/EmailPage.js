@@ -21,7 +21,7 @@ class EmailPage extends Component {
       //} else {
       //  window.location.href = "/";
       //}
-      if(this.state.user.emailVerified){
+      if(user.emailVerified){
         window.location.href = "/dashboard";
       } else {
         //send email

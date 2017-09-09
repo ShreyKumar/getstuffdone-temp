@@ -6,18 +6,20 @@ import * as firebase from 'firebase';
 class Dashboard extends Component {
   constructor(props){
     super(props);
-    this.state = {verified: false, email: "", msg: ""};
+    this.signmeout = this.signmeout.bind(this);
 
     this.getParameterByName = this.getParameterByName.bind(this);
     var mode = this.getParameterByName("mode");
     var actionCode= this.getParameterByName("oobCode");
+
+    this.state = {verified: "no-link", email: "", msg: ""};
 
     if(mode == "verifyEmail"){
       console.log("verify the email");
       firebase.auth().applyActionCode(actionCode).then(function(resp){
         console.log("verified");
         this.setState({verified: true});
-      }).catch(function(error){
+      }.bind(this)).catch(function(error){
         console.log("error");
         console.log(error);
         this.setState({verified: false});
@@ -26,6 +28,7 @@ class Dashboard extends Component {
       firebase.auth().onAuthStateChanged(function(user){
         if(this.state.verified){
           this.setState({email: user.email});
+
         } else {
           this.setState({msg: "Oops! This link may have expired or already been used. Please try again later."});
         }
@@ -34,6 +37,15 @@ class Dashboard extends Component {
     } else {
       console.log("other modes");
     }
+  }
+
+  signmeout(){
+    firebase.auth().signOut().then(function(){
+      window.location.href = "/";
+    }, function(error){
+      console.log("error");
+      console.log(error);
+    })
   }
 
   getParameterByName(name, url) {
@@ -49,18 +61,22 @@ class Dashboard extends Component {
 
   render(){
 
-    var container = <div id="dashboard">;
+    let alert = null;
 
-    if(this.state.verified){
-      var ret = start.push(
-        <p>Your email <b>{this.state.email}</b> has been sucessfully verified.</p>
-      );
-    } else {
-      var ret = start.push(<p>{this.state.msg}</p>);
+    if(this.state.verified != "no-link"){
+      if(this.state.verified){
+        alert = <div className="alert success">Your email <b>{this.state.email}</b> has been sucessfully verified</div>;
+      } else {
+        alert = <div className="alert error">Oops! This link may have already been used or expired. Please try again later.</div>
+      }
     }
 
-    ret.push(end);
-    return ret;
+    return (<div id="dashboard">
+      {alert}
+      <h1>Welcome to the dashboard!</h1>
+      <p><a href="#" onClick={this.signmeout}>Sign out</a></p>
+
+    </div>);
   }
 }
 export {Dashboard}

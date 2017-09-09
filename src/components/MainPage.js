@@ -247,26 +247,18 @@ class Form extends React.Component {
                 month: input_month,
                 year: input_year
               })
-
-              var currentUser = this.state.user;
-              currentUser.push(user);
-              this.setState({user: currentUser});
             }
           }.bind(this));
 
 
 
       } else {
-        var currentMsg = this.state;
-        currentMsg.msg = "Sorry, some of your information is invalid/empty";
-        this.setState(currentMsg);
+        this.setState({msg: "Sorry, some of your information is invalid/empty"});
       }
 
     } else {
       //fix everything first!
-      var currentMsg = this.state;
-      currentMsg.msg = "Sorry, some of your information is invalid/empty";
-      this.setState(currentMsg);
+      this.setState({msg: "Sorry, some of your information is invalid/empty"});
     }
   }
   handleLogin(event){
@@ -278,17 +270,7 @@ class Form extends React.Component {
       firebase.auth().signInWithEmailAndPassword(input_email, input_pwd).catch(function(error){
         if(error){
           console.log(error);
-          var currentMsg = this.state;
-          currentMsg.msg = "Invalid email or password";
-          this.setState(currentMsg);
-        }
-      }.bind(this));
-
-      firebase.auth().onAuthStateChanged(function(user){
-        if(user){
-          var currentUser = this.state.user;
-          currentUser.push(user);
-          this.setState({user: currentUser});
+          this.setState({msg: "Invalid email or password"});
         }
       }.bind(this));
 
